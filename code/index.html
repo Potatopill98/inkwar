@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#efe6d3" />
+  <link rel="icon" href="data:," />
+  <title>墨阵山河</title>
+  <link rel="stylesheet" href="styles.css?v=1.93" />
+</head>
+<body>
+  <div id="app">
+    <!-- 加载 -->
+    <section id="screen-loading" class="screen active">
+      <div class="loading-paper">
+        <div class="ink-blot"></div>
+        <h1 class="game-title">墨阵山河</h1>
+        <p class="loading-text">墨迹未干，山河待复…</p>
+        <div class="loading-bar"><span></span></div>
+      </div>
+    </section>
+
+    <!-- 标题 -->
+    <section id="screen-title" class="screen">
+      <div class="title-scene">
+        <div class="mountain mountain-a"></div>
+        <div class="mountain mountain-b"></div>
+        <div class="mountain mountain-c"></div>
+        <div class="sun-disc"></div>
+        <div class="title-copy">
+          <h1 class="game-title">墨阵山河</h1>
+          <p class="title-sub">古风 · 单线 · 点兵 · 水墨</p>
+          <p class="title-quote">一点军令，千军列阵；一笔山河，名将归心。</p>
+          <button id="btn-enter" class="btn btn-seal btn-xl">点 击 入 阵</button>
+          <p class="title-note">TapTap H5 · 横屏游玩 · 进度自动保存</p>
+        </div>
+        <div id="cloud-hint" class="cloud-hint"></div>
+      </div>
+    </section>
+
+    <!-- 主界面 -->
+    <section id="screen-home" class="screen">
+      <div class="home-bg">
+        <div class="home-mountain"></div>
+        <div class="home-bamboo"></div>
+      </div>
+      <header class="top-bar">
+        <div class="top-left">
+          <span class="seal-mini">墨</span>
+          <span id="home-player" class="player-name">墨阵师</span>
+        </div>
+        <div class="top-resources" id="top-resources">
+          <div class="brawl-res-pill" id="pill-supplies" title="军饷 (铜钱) · 扩建大营与强军">
+            <span class="brawl-res-icon">🪙</span>
+            <span class="brawl-res-val" id="top-res-supplies">0</span>
+          </div>
+          <div class="brawl-res-pill" id="pill-mobao" title="墨宝 (墨玉) · 墨法点化与抽将">
+            <span class="brawl-res-icon">💎</span>
+            <span class="brawl-res-val" id="top-res-mobao">0</span>
+          </div>
+          <div class="brawl-res-pill" id="pill-tokens" title="将令 (虎符) · 祈将求贤">
+            <span class="brawl-res-icon">🎟️</span>
+            <span class="brawl-res-val" id="top-res-tokens">0</span>
+          </div>
+          <div class="brawl-res-pill pill-ticket" id="pill-tickets" title="墨影门票 · 每日免费2次，看广告无限补充">
+            <span class="brawl-res-icon">🌀</span>
+            <span class="brawl-res-val" id="top-res-tickets">2/2</span>
+            <button class="brawl-res-plus" id="btn-top-add-ticket" title="观看演武补充试炼门票">+</button>
+          </div>
+        </div>
+        <div class="top-right">
+          <button id="btn-leaderboard-top" class="btn btn-ghost btn-sm">排行</button>
+          <button id="btn-settings-top" class="btn btn-ghost btn-sm">设置</button>
+        </div>
+      </header>
+
+      <div class="home-main">
+        <div class="hero-showcase" id="home-hero-showcase">
+          <div class="hero-art" id="home-hero-art"></div>
+          <div class="hero-info">
+            <div class="hero-title" id="home-hero-title">常胜将军</div>
+            <div class="hero-name" id="home-hero-name">赵云</div>
+            <p class="hero-passive" id="home-hero-passive">龙胆 · 附近友军攻速提升</p>
+          </div>
+          <div class="showcase-ring"></div>
+        </div>
+
+        <div class="home-panel">
+          <div class="home-top-row">
+            <div class="war-record">
+              <div><span class="record-num" id="home-score">0</span><span class="record-label">战功</span></div>
+              <div><span class="record-num" id="home-stars">0</span><span class="record-label">星数</span></div>
+              <div><span class="record-num" id="home-cleared">0</span><span class="record-label">通关</span></div>
+            </div>
+            <div class="chapter-brief">
+              <p class="brief-label">当前战局</p>
+              <h3 id="home-chapter">第一章 · 黄巾之乱</h3>
+              <p id="home-next-level">下一战：初阵·乡勇</p>
+            </div>
+          </div>
+
+          <!-- 山河悬赏令 (主页精选看板，支持收起/展开，保持界面清爽) -->
+          <div class="home-bounty-section" id="home-bounty-section">
+            <div class="bounty-sec-header">
+              <div class="bounty-sec-title">
+                <span class="seal-mini-gold">赏</span>
+                <span class="bounty-sec-name">山河悬赏令</span>
+                <span class="bounty-sec-summary" id="home-bounty-summary">日赏 0/3 · 周赏 0/4</span>
+              </div>
+              <div class="bounty-sec-actions">
+                <button class="btn btn-sm btn-gold-pulse" id="btn-home-claim-all" style="display:none;">一键领赏</button>
+                <button class="btn btn-sm btn-paper" id="btn-toggle-bounty-collapse" title="收起/展开主页悬赏">收起</button>
+                <button class="btn btn-sm btn-paper" id="btn-open-bounty-all">悬赏榜 ❯</button>
+              </div>
+            </div>
+            <div class="home-bounty-list" id="home-bounty-list">
+              <!-- 动态填充 2-3 个代表性悬赏 -->
+            </div>
+            <!-- 收起状态下的精简胶囊条 -->
+            <div class="home-bounty-collapsed-bar" id="home-bounty-collapsed-bar" style="display:none;">
+              <div class="collapsed-info">
+                <span class="seal-mini-gold">赏</span>
+                <span class="collapsed-name">山河悬赏</span>
+                <span class="collapsed-summary" id="home-bounty-collapsed-summary">日赏 0/3</span>
+              </div>
+              <div class="collapsed-btns">
+                <button class="btn btn-xs btn-gold-pulse" id="btn-collapsed-claim-all" style="display:none;">领赏</button>
+                <button class="btn btn-xs btn-paper" id="btn-expand-bounty">展开 ▾</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-nav">
+            <div class="home-nav-primary">
+              <button id="btn-campaign" class="btn btn-seal btn-huge">征 战</button>
+              <button id="btn-home-endless" class="btn btn-huge btn-endless-home">
+                <span class="endless-btn-title">墨影试炼 · 无尽</span>
+                <span class="endless-btn-badge" id="endless-home-badge">免 2次</span>
+                <span class="endless-btn-lock" id="endless-home-lock" style="display:none;">🔒20关解锁</span>
+              </button>
+            </div>
+            <div class="home-nav-secondary">
+              <button id="btn-heroes" class="btn btn-paper">点 将</button>
+              <button id="btn-codex" class="btn btn-paper">兵 册</button>
+              <button id="btn-gacha" class="btn btn-paper">点兵点将</button>
+              <button id="btn-camp" class="btn btn-paper">大 营</button>
+              <button id="btn-bounty" class="btn btn-paper btn-bounty-nav">
+                悬 赏<span class="nav-badge" id="home-bounty-badge" style="display:none;">0</span>
+              </button>
+            </div>
+          </div>
+          <p class="cloud-status" id="home-cloud">进度自动保存</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 关卡选择 -->
+    <section id="screen-levels" class="screen">
+      <header class="sub-header">
+        <button class="btn btn-ghost btn-sm back-btn" data-back="home">← 返回</button>
+        <div class="sub-title">
+          <span class="seal-mini">征</span>
+          <h2>山 河 残 卷</h2>
+        </div>
+        <button id="btn-open-endless" class="btn btn-seal btn-sm" style="margin-right:12px; background:linear-gradient(135deg, #8a2a20, #5c1812); border-color:#c9a25e; box-shadow:0 0 8px rgba(178,58,47,0.4);">墨影试炼 · 无尽</button>
+        <div class="header-spacer"></div>
+      </header>
+      <div class="chapter-tabs" id="chapter-tabs"></div>
+      <div class="levels-body">
+        <div class="level-scroll" id="level-scroll">
+          <div class="level-path" id="level-path"></div>
+        </div>
+        <aside class="level-detail" id="level-detail">
+          <div class="detail-empty">选择一处关隘</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- 战前准备 -->
+    <section id="screen-prep" class="screen">
+      <header class="sub-header">
+        <button class="btn btn-ghost btn-sm back-btn" data-back="levels">← 返回</button>
+        <div class="sub-title">
+          <span class="seal-mini">将</span>
+          <h2 id="prep-title">点 将 台</h2>
+        </div>
+        <button id="btn-start-battle" class="btn btn-seal btn-md">出 战</button>
+      </header>
+      <div class="prep-body">
+        <section class="prep-block prep-enemy">
+          <h3 class="block-title">敌情笺</h3>
+          <div id="prep-enemy" class="enemy-scroll"></div>
+          <p id="prep-tip" class="prep-tip"></p>
+        </section>
+
+        <section class="prep-block prep-hero">
+          <h3 class="block-title">
+            主将 <span class="hero-current" id="prep-hero-current">赵云</span>
+            <button type="button" class="hero-toggle" id="btn-hero-toggle">换将</button>
+          </h3>
+          <div class="hero-row" id="prep-heroes"></div>
+          <div class="hero-skill-card" id="prep-hero-skill"></div>
+        </section>
+
+        <section class="prep-block prep-deck">
+          <h3 class="block-title">
+            出战卡组 <span id="deck-count" class="muted">0/6</span>
+            <span class="deck-bonus" id="deck-bonus">军阵加成：无</span>
+          </h3>
+          <div class="deck-row">
+            <div class="deck-slots" id="deck-slots"></div>
+            <div class="deck-actions">
+              <button id="btn-recommend" class="btn btn-paper btn-sm">推荐</button>
+              <button id="btn-clear-deck" class="btn btn-ghost btn-sm">清空</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="prep-block prep-pool">
+          <h3 class="block-title">兵册 <span class="muted" id="pool-hint">点选入组 · 长按看克制</span></h3>
+          <div class="card-pool" id="card-pool"></div>
+        </section>
+      </div>
+      <div id="pool-detail" class="pool-tip"></div>
+    </section>
+
+    <!-- 战斗 -->
+    <section id="screen-battle" class="screen battle-screen">
+      <canvas id="battle-canvas"></canvas>
+      <div id="weather-overlay" class="weather-overlay"></div>
+      <div id="dmg-layer" class="dmg-layer"></div>
+
+      <div class="battle-hud">
+        <div class="battle-top">
+          <div class="base-bar player">
+            <span class="base-label">帅帐</span>
+            <div class="base-track"><span id="base-player-fill"></span></div>
+            <span class="base-text" id="base-player-text">3000</span>
+          </div>
+          <div class="wave-box">
+            <span class="wave-index" id="wave-index">0/0</span>
+            <span class="wave-label" id="wave-label">列阵</span>
+          </div>
+          <div class="base-bar enemy">
+            <span class="base-label">敌寨</span>
+            <div class="base-track"><span id="base-enemy-fill"></span></div>
+            <span class="base-text" id="base-enemy-text">0</span>
+          </div>
+        </div>
+
+        <div class="boss-bar" id="boss-bar">
+          <div class="boss-name" id="boss-name">首领</div>
+          <div class="boss-track"><span id="boss-fill"></span></div>
+        </div>
+        <!-- 波次时间轴容器 (Planning §2.2) -->
+        <div class="wave-timeline" id="wave-timeline"></div>
+
+        <div class="card-tray" id="card-tray"></div>
+
+        <!-- 屏幕右侧专属战术控制台（倍速与暂停 醒目大印章钮，独立于技能按钮） -->
+        <div class="battle-side-controls">
+          <button class="side-btn speed-btn" id="speed-btn" title="战斗倍速">1×</button>
+          <button class="side-btn pause-btn" id="pause-btn" title="暂停/继续">⏸</button>
+        </div>
+
+
+        <div class="battle-bottom">
+          <div class="hero-panel" id="hero-panel">
+            <div class="hero-seal" id="hero-seal">赵</div>
+            <div class="hero-panel-info">
+              <div class="hero-panel-name" id="hud-hero-name">赵云 <span id="hud-hero-level">Lv.1</span></div>
+              <div class="hero-hp-track" id="hud-hero-hp-track" title="主将生命值">
+                <span id="hud-hero-hp-fill"></span>
+                <span class="hud-hero-hp-text" id="hud-hero-hp-text">1200 / 1200</span>
+              </div>
+              <div class="hero-xp-track" title="局内历练经验"><span id="hero-xp-fill"></span></div>
+              <div class="hero-passive-hud" id="hud-hero-passive">龙胆 · 攻速光环</div>
+              <div class="hero-skill-hud" id="hud-hero-skill"></div>
+            </div>
+          </div>
+
+          <div class="energy-wrap">
+            <div class="energy-label"><span>军令</span><span id="energy-text">45 / 120</span></div>
+            <div class="energy-track"><span id="energy-fill"></span></div>
+            <div class="deck-bonus-hud" id="deck-bonus-hud"></div>
+          </div>
+
+          <div class="battle-actions">
+            <button class="gadget-btn" id="gadget-btn" title="专属技能 (按 E 键释放)">
+              <span class="gadget-key">E</span>
+              <span class="gadget-name" id="gadget-name">技能</span>
+              <span class="gadget-cd" id="gadget-cd"></span>
+            </button>
+            <button class="skill-btn" id="skill-btn" title="主动大招 (按 Q 键释放)">
+              <svg class="super-ring-svg" viewBox="0 0 80 80">
+                <circle class="super-ring-bg" cx="40" cy="40" r="34" />
+                <circle class="super-ring-fill" id="super-ring-fill" cx="40" cy="40" r="34" />
+              </svg>
+              <span class="skill-key">Q</span>
+              <span class="skill-name" id="skill-name">大招</span>
+              <span class="skill-cd" id="skill-cd"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="battle-banner" id="battle-banner">
+          <div class="banner-main" id="banner-main"></div>
+          <div class="banner-sub" id="banner-sub"></div>
+        </div>
+
+        <div class="guide-tip" id="guide-tip">
+          <div class="guide-hand"></div>
+          <p id="guide-text"></p>
+        </div>
+        <div class="zone-hint" id="zone-hint"></div>
+        <div class="battle-flash" id="battle-flash"></div>
+      </div>
+
+      <div class="pause-modal modal" id="pause-modal">
+        <div class="modal-paper">
+          <h2>暂 停</h2>
+          <p class="modal-sub">战场已静，号令未停。</p>
+          <div class="pause-buttons">
+            <button class="btn btn-seal" id="btn-resume">继续指挥</button>
+            <button class="btn btn-paper" id="btn-restart">重新布阵</button>
+            <button class="btn btn-paper" id="btn-retreat">撤回关卡</button>
+            <button class="btn btn-paper" id="btn-endless-save-quit" style="display:none;">暂存进度退出</button>
+            <button class="btn btn-seal" id="btn-endless-settle-quit" style="display:none; background:#8a2a20;">结算退出</button>
+          </div>
+          <div class="pause-settings">
+            <button class="btn btn-ghost btn-sm" id="btn-pause-music">音乐：开</button>
+            <button class="btn btn-ghost btn-sm" id="btn-pause-sfx">音效：开</button>
+          </div>
+          <div class="pause-hero-tuning" id="pause-hero-tuning">
+            <div class="tune-header">
+              <span>👑 英雄即时调校 (赵云)</span>
+              <button class="btn btn-ghost btn-sm" id="btn-toggle-pause-tune">展开调校 ▾</button>
+            </div>
+            <div class="tune-content" id="pause-tune-content" style="display:none;">
+              <div class="hero-tune-item">
+                <div class="tune-label"><span>基础生命 (HP)</span><span class="tune-val" id="pval-hero-hp">1200</span></div>
+                <input type="range" id="pslider-hero-hp" min="400" max="3000" step="50" value="1200">
+              </div>
+              <div class="hero-tune-item">
+                <div class="tune-label"><span>基础攻击 (ATK)</span><span class="tune-val" id="pval-hero-atk">65</span></div>
+                <input type="range" id="pslider-hero-atk" min="25" max="250" step="5" value="65">
+              </div>
+              <div class="hero-tune-item">
+                <div class="tune-label"><span>基础护甲 (Armor)</span><span class="tune-val" id="pval-hero-armor">10</span></div>
+                <input type="range" id="pslider-hero-armor" min="0" max="40" step="2" value="10">
+              </div>
+              <div class="hero-tune-item">
+                <div class="tune-label"><span>脱战回血</span><span class="tune-val" id="pval-hero-regen">4%/s</span></div>
+                <input type="range" id="pslider-hero-regen" min="1" max="10" step="0.5" value="4">
+              </div>
+              <div class="hero-tune-item">
+                <div class="tune-label"><span>警戒半径</span><span class="tune-val" id="pval-hero-aggro">2.85m</span></div>
+                <input type="range" id="pslider-hero-aggro" min="1.5" max="4.5" step="0.15" value="2.85">
+              </div>
+              <div class="hero-tune-actions">
+                <button class="btn btn-ghost btn-sm" id="pbtn-reset-hero-tuning">恢复默认</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 无尽模式肉鸽三选一增益弹窗 -->
+      <div class="modal endless-buff-modal" id="endless-buff-modal" style="display:none;">
+        <div class="modal-paper endless-buff-paper">
+          <div class="buff-modal-badge">墨影试炼 · 战法推演</div>
+          <h2>阵前赐策 · 增益三选一</h2>
+          <p class="buff-modal-sub">每历经五波墨潮洗礼，可择一韬略以御强敌（效果全局叠加）</p>
+          <div class="endless-buff-cards" id="endless-buff-cards"></div>
+        </div>
+      </div>
+
+      <div class="result-modal modal" id="result-modal">
+        <div class="modal-paper result-paper">
+          <div class="result-title" id="result-title">胜 利</div>
+          <div class="result-stars" id="result-stars"></div>
+          <div class="result-quote" id="result-quote"></div>
+          <div class="result-stats" id="result-stats"></div>
+          <div class="result-unlocks" id="result-unlocks"></div>
+          <button class="btn btn-token" id="btn-result-double" style="display:none">看广告 · 将令双倍</button>
+          <button class="btn btn-seal btn-lg result-tour-btn" id="btn-result-tour" style="display:none">巡 礼 军 府 · 出 发</button>
+          <div class="result-buttons">
+            <button class="btn btn-paper" id="btn-result-retry">再 战</button>
+            <button class="btn btn-seal" id="btn-result-next">下 一 关</button>
+            <button class="btn btn-paper" id="btn-result-back">返 回</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 兵册 / 点将 -->
+    <section id="screen-codex" class="screen">
+      <header class="sub-header">
+        <button class="btn btn-ghost btn-sm back-btn" data-back="home">← 返回</button>
+        <div class="sub-title"><span class="seal-mini">册</span><h2>兵 册 · 点 将</h2></div>
+        <div class="codex-tabs">
+          <button class="tab active" id="tab-units">兵种</button>
+          <button class="tab" id="tab-heroes">英雄</button>
+        </div>
+        <div class="codex-mobao-bar" id="codex-mobao-bar" title="墨宝：每一关通关掉落，可用于局外永久升级英雄！">
+          <span>🖋️ 墨宝</span>
+          <b id="val-codex-mobao">0</b>
+        </div>
+      </header>
+      <div class="codex-body">
+        <div class="codex-grid" id="codex-grid"></div>
+        <aside class="codex-detail" id="codex-detail">
+          <div class="detail-empty">选择一位角色</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- 排行榜 -->
+    <section id="screen-leaderboard" class="screen">
+      <header class="sub-header">
+        <button class="btn btn-ghost btn-sm back-btn" data-back="home">← 返回</button>
+        <div class="sub-title"><span class="seal-mini">榜</span><h2>山 河 战 功 榜</h2></div>
+        <div class="header-spacer"></div>
+      </header>
+      <div class="leaderboard-body">
+        <div class="leaderboard-seal">
+          <span class="seal-label">我的战功</span>
+          <span class="seal-score" id="lb-score">0</span>
+        </div>
+        <div class="leaderboard-info">
+          <h3>以战功论高下</h3>
+          <p>每关按星级、关卡与速胜计分；首通另有额外战功。战功越高，排名越前。</p>
+          <div class="lb-mini-stats" id="lb-stats"></div>
+          <button class="btn btn-seal btn-lg" id="btn-open-leaderboard">打开排行榜</button>
+          <p class="muted" id="lb-note">排行榜由 TapTap 提供</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 祈将台（v1.1 #8） -->
+    <section id="screen-gacha" class="screen">
+      <header class="sub-header">
+        <button class="btn btn-ghost btn-sm back-btn" data-back="home">← 返回</button>
+        <div class="sub-title"><span class="seal-mini">点</span><h2>点 兵 点 将</h2></div>
+        <div class="header-spacer"></div>
+      </header>
+      <div class="gacha-body">
+        <div class="gacha-top">
+          <div class="gacha-tokens-panel">
+            <span class="gt-label">将令</span>
+            <span class="gt-num" id="gacha-tokens">0</span>
+            <span class="gt-hint">首通每关 +5 将令 · 100 将令可召唤将领或点募限定兵种</span>
+          </div>
+          <div class="gacha-draw-panel">
+            <div class="gacha-ink" id="gacha-ink">
+              <span class="gi-num" id="gacha-roll-num"></span>
+              <span class="gi-label" id="gacha-roll-label">墨笔点将</span>
+            </div>
+            <button class="btn btn-seal btn-lg" id="btn-gacha-free">祈 愿（今日免费 <b id="gacha-free-left">1</b>）</button>
+            <button class="btn btn-paper" id="btn-gacha-ad">看广告祈愿（今日剩 <b id="gacha-ad-left">3</b>）</button>
+            <p class="muted">每次祈愿随机得 1–50 将令</p>
+          </div>
+        </div>
+        <div class="gacha-tabs" id="gacha-tabs">
+          <button class="gacha-tab active" data-gacha-tab="hero">点 将 · 将领</button>
+          <button class="gacha-tab" data-gacha-tab="unit">点 兵 · 兵种</button>
+        </div>
+        <h3 class="gacha-pool-title" id="gacha-pool-hero-title">以 令 召 将 · 每 位 100 将 令（任 选）</h3>
+        <div class="gacha-grid" id="gacha-grid"></div>
+        <h3 class="gacha-pool-title" id="gacha-pool-unit-title" style="display:none">以 令 点 兵 · 每 位 100 将 令（关卡无法获取）</h3>
+        <div class="gacha-grid" id="gacha-unit-grid" style="display:none"></div>
+      </div>
+      <!-- 获得新英雄演出（参考荒野乱斗开箱揭晓） -->
+      <div class="hero-reveal" id="hero-reveal">
+        <div class="reveal-rays"></div>
+        <div class="reveal-splash"></div>
+        <div class="reveal-card">
+          <span class="reveal-label">新 将 入 阵</span>
+          <span class="reveal-art" id="reveal-art"></span>
+          <span class="reveal-name" id="reveal-name"></span>
+          <span class="reveal-title" id="reveal-title"></span>
+          <p class="reveal-quote" id="reveal-quote"></p>
+          <button class="btn btn-seal" id="btn-reveal-close">收 入 麾 下</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 大本营（军令营） -->
+    <section id="screen-camp" class="screen">
+      <header class="sub-header">
+        <button class="btn btn-ghost btn-sm back-btn" data-back="home">← 返回</button>
+        <div class="sub-title"><span class="seal-mini">营</span><h2>大 本 营</h2></div>
+        <div class="header-spacer"></div>
+      </header>
+      <div class="camp-body">
+        <div class="camp-card">
+          <div class="camp-head">
+            <div>
+              <p class="camp-sub">军 令 营 · 局 外 永 久 成 长</p>
+              <h3 class="camp-title">等级 <b id="camp-level">0</b> / <span id="camp-max">20</span></h3>
+            </div>
+            <div class="camp-supplies">
+              <span class="camp-supplies-num" id="camp-supplies">0</span>
+              <span class="camp-supplies-label">军需</span>
+            </div>
+          </div>
+          <div class="camp-progress"><span id="camp-progress-fill"></span></div>
+          <div class="camp-stats">
+            <div>
+              <span class="camp-stat-num" id="camp-energy">30</span>
+              <span class="camp-stat-label">军令上限</span>
+              <span class="camp-stat-next" id="camp-energy-next">下一级 31</span>
+            </div>
+            <div>
+              <span class="camp-stat-num" id="camp-regen">1.00</span>
+              <span class="camp-stat-label">每秒回复</span>
+              <span class="camp-stat-next" id="camp-regen-next">下一级 1.05</span>
+            </div>
+            <div>
+              <span class="camp-stat-num" id="camp-cost">10</span>
+              <span class="camp-stat-label">升级军需</span>
+              <span class="camp-stat-next">逐级 +10</span>
+            </div>
+          </div>
+          <div class="camp-actions">
+            <button class="btn btn-seal btn-lg" id="camp-upgrade">升 级 大 本 营</button>
+            <button class="btn btn-paper" id="camp-daily">领取今日军需</button>
+          </div>
+          <p class="camp-hint" id="camp-hint">每场胜利掉落军需，首通更多；军令上限与回复只增不减，20 级封顶。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 设置 -->
+    <section id="screen-settings" class="screen">
+      <header class="sub-header">
+        <button class="btn btn-ghost btn-sm back-btn" data-back="home">← 返回</button>
+        <div class="sub-title"><span class="seal-mini">设</span><h2>设 置</h2></div>
+        <div class="header-spacer"></div>
+      </header>
+      <div class="settings-body">
+        <div class="settings-card">
+          <div class="setting-row">
+            <div><h4>音乐</h4><p>古筝、战鼓与钟磬</p></div>
+            <button class="switch on" id="switch-music"></button>
+          </div>
+          <div class="setting-row">
+            <div><h4>音效</h4><p>刀剑、弓弦、马蹄与爆炸</p></div>
+            <button class="switch on" id="switch-sfx"></button>
+          </div>
+          <div class="setting-row">
+            <div><h4>画质</h4><p>低画质会降低分辨率与粒子数量</p></div>
+            <div class="quality-btns" id="quality-btns">
+              <button data-q="auto" class="active">自动</button>
+              <button data-q="high">高</button>
+              <button data-q="low">低</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div><h4>新手引导</h4><p>重看第 1-4 关战斗引导，或重看军府巡礼</p></div>
+            <div class="setting-btn-group">
+              <button class="btn btn-paper btn-sm" id="btn-replay-tutorial">前往第 1 关</button>
+              <button class="btn btn-paper btn-sm" id="btn-replay-tour">军府巡礼</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div><h4>数值调校</h4><p>内部使用，需调校口令</p></div>
+            <div class="setting-btn-group">
+              <input class="dev-code-input" id="input-balance-code" type="text" inputmode="numeric" maxlength="6" placeholder="口令">
+              <button class="btn btn-paper btn-sm" id="btn-dev-panel">打 开</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div><h4>开发者模式</h4><p>输入口令所有资源 99999，解锁全关卡、全兵种与将领</p></div>
+            <div class="setting-btn-group">
+              <input class="dev-code-input" id="input-dev-code" type="text" inputmode="numeric" maxlength="6" placeholder="口令">
+              <button class="btn btn-paper btn-sm" id="btn-dev-code">开 启</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div><h4>存档</h4><p id="settings-cloud">仅本地存档</p></div>
+            <button class="btn btn-ghost btn-sm" id="btn-reset-save">清空存档</button>
+          </div>
+          <div class="setting-row about-row">
+            <div><h4>关于</h4><p>《墨阵山河》试玩版 v0.1 · 前 20 关 · TapTap H5</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 山河悬赏令 (任务系统全景弹窗) -->
+    <div class="modal bounty-modal" id="bounty-modal" style="display:none;">
+      <div class="modal-paper bounty-paper">
+        <div class="bounty-modal-header">
+          <div class="bounty-title-wrap">
+            <span class="seal-mini-gold">悬</span>
+            <h2>山 河 悬 赏 令</h2>
+            <span class="bounty-sub-quote">立功受赏 · 恩泽三军</span>
+          </div>
+          <button class="modal-close" id="btn-close-bounty">✕</button>
+        </div>
+
+        <div class="bounty-tabs">
+          <button class="bounty-tab active" id="tab-bounty-daily" data-tab="daily">
+            <span class="tab-icon">📅</span> 每日悬赏
+            <span class="tab-timer" id="bounty-daily-timer">刷新倒计时 00:00:00</span>
+          </button>
+          <button class="bounty-tab" id="tab-bounty-weekly" data-tab="weekly">
+            <span class="tab-icon">🏆</span> 每周悬赏
+            <span class="tab-timer" id="bounty-weekly-timer">重置倒计时 0天00:00</span>
+          </button>
+        </div>
+
+        <div class="bounty-refresh-bar" id="bounty-refresh-bar">
+          <span class="bounty-refresh-text">每日任务可单独刷新 · 今日免费 <b id="bounty-refresh-count">2</b> 次</span>
+          <span class="bounty-refresh-hint">用完后点任务上的 🎬 可看广告换一个</span>
+        </div>
+
+        <div class="bounty-list-container" id="bounty-modal-list">
+          <!-- 动态渲染悬赏卡片 -->
+        </div>
+
+        <div class="bounty-modal-footer">
+          <div class="bounty-footer-hint" id="bounty-footer-hint">完成任务自动积攒进度，可选择常规领取或看广告双倍领赏</div>
+          <div class="bounty-footer-actions">
+            <button class="btn btn-gold-pulse btn-md" id="btn-modal-claim-all" style="display:none;">一 键 领 赏</button>
+            <button class="btn btn-gold-pulse btn-md" id="btn-modal-claim-all-double" style="display:none;">🎬 一键双倍领赏</button>
+            <button class="btn btn-paper btn-md" id="btn-modal-close-bounty">返 回</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 荒野乱斗级 · 全局通用资源获取展台 (Universal Reward Showcase Modal) -->
+    <div class="modal reward-showcase-modal" id="reward-showcase-modal" style="display:none;">
+      <div class="reward-showcase-backdrop"></div>
+      <div class="reward-sunburst"></div>
+      <div class="reward-showcase-card">
+        <div class="reward-header">
+          <span class="seal-mini-gold" id="reward-showcase-seal">犒</span>
+          <h2 class="reward-showcase-title" id="reward-showcase-title">战 功 嘉 奖</h2>
+          <p class="reward-showcase-sub" id="reward-showcase-sub">山河定鼎，犒赏三军</p>
+        </div>
+        <div class="reward-items-container" id="reward-items-container">
+          <!-- 动态注入弹跳进场的奖励项目 -->
+        </div>
+        <div class="reward-double-badge" id="reward-double-badge" style="display:none;">
+          <span>🎉 观摩战阵 · 犒赏全量翻倍！</span>
+        </div>
+        <div class="reward-actions" id="reward-actions">
+          <button class="btn btn-paper btn-lg" id="btn-claim-reward-normal">领 取</button>
+          <button class="btn btn-gold-pulse btn-lg" id="btn-claim-reward-double">🎬 看广告双倍领取</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 墨影试炼 · 门票不足与观影补票弹窗 -->
+    <div class="modal endless-ticket-modal" id="endless-ticket-modal" style="display:none;">
+      <div class="modal-paper ticket-modal-paper">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="seal-mini">试</span>
+            <h2>墨影试炼 · 入阵令</h2>
+          </div>
+          <button class="modal-close" id="btn-close-ticket-modal">✕</button>
+        </div>
+        <div class="ticket-status-card">
+          <div class="ticket-icon-large">🌀</div>
+          <div class="ticket-status-text">
+            <h3>今日免费入阵机会已用尽（2/2）</h3>
+            <p>每日 00:00 自动恢复 2 次免费试炼机会</p>
+            <p class="ticket-ad-hint">统帅可观摩军师推演，立即补充 1 次试炼门票（不限次数，看一次得一次）！</p>
+          </div>
+        </div>
+        <div class="ticket-modal-actions">
+          <button class="btn btn-paper" id="btn-ticket-cancel">稍后出征</button>
+          <button class="btn btn-gold-pulse btn-lg" id="btn-ticket-watch-ad">🎬 观看演武补充门票 (+1次)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 墨影试炼 · 第20关通关盛大解锁引导弹窗 -->
+    <div class="modal endless-unlock-modal" id="endless-unlock-modal" style="display:none;">
+      <div class="modal-paper unlock-modal-paper">
+        <div class="unlock-header">
+          <span class="seal-mini-gold">极</span>
+          <h2>墨影试炼 · 终极无尽解禁</h2>
+          <p class="unlock-sub">恭喜统帅荡平前二十雄关！山河重器，无尽磨砺！</p>
+        </div>
+        <div class="unlock-rules-grid">
+          <div class="rule-card">
+            <span class="rule-icon">🌀</span>
+            <div class="rule-title">每日 2 次免费</div>
+            <div class="rule-desc">每日自动重置 2 次试炼令，更可观影无限补充！</div>
+          </div>
+          <div class="rule-card">
+            <span class="rule-icon">💥</span>
+            <div class="rule-title">敌寨爆破重生</div>
+            <div class="rule-desc">敌寨血空触发反噬震退，3秒无敌重生再战！</div>
+          </div>
+          <div class="rule-card">
+            <span class="rule-icon">🎴</span>
+            <div class="rule-title">肉鸽三选一强化</div>
+            <div class="rule-desc">每坚守 5 波可挑选强力军令、回血、攻防增益！</div>
+          </div>
+          <div class="rule-card">
+            <span class="rule-icon">👹</span>
+            <div class="rule-title">神魔首领降临</div>
+            <div class="rule-desc">每 10 波张角、华雄、吕布等霸烈首领出阵斩杀！</div>
+          </div>
+        </div>
+        <div class="unlock-actions">
+          <button class="btn btn-gold-pulse btn-xl" id="btn-go-endless-first">踏入墨影试炼 ❯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-layer" id="toast-layer"></div>
+    <div class="confirm-modal modal" id="confirm-modal">
+      <div class="modal-paper">
+        <h2 id="confirm-title">确认</h2>
+        <p class="modal-sub" id="confirm-text"></p>
+        <div class="confirm-buttons">
+          <button class="btn btn-paper" id="btn-confirm-cancel">取消</button>
+          <button class="btn btn-seal" id="btn-confirm-ok">确认</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="rotate-overlay">
+      <div class="rotate-scroll">
+        <span class="seal-mini">横</span>
+        <h2>请横屏游玩</h2>
+        <p>山河万里，需得横看。</p>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="src/main.js?v=1.93"></script>
+</body>
+</html>
+
+

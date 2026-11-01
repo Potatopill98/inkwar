@@ -1,0 +1,16 @@
+# 大体积素材与构建依赖（本地保留，不入库）
+/promo/
+/assets/
+/scratch/
+/doc/build/
+node_modules/
+
+# 本地工具产物
+*.bak
+/code/scratch/*.png
+
+# 系统/编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

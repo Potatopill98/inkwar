@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="margin:0; background:#efe6d3; font-family:sans-serif;">
+  <div style="padding:20px; display:flex; gap:30px; align-items:flex-start;">
+    <div>
+      <h3 style="margin-top:0;">1. 生成的高清将领立绘 (384x576 纵向)</h3>
+      <img id="thumb-img" style="width:192px; height:288px; border:2px solid #5a4232; border-radius:8px; background:rgba(0,0,0,0.03);" />
+    </div>
+    <div>
+      <h3 style="margin-top:0;">2. 主界面常胜将军展台展示 (模拟完整主界面)</h3>
+      <div id="home-showcase" style="width:300px; height:420px; border:2px solid rgba(23,21,15,0.25); border-radius:46% 46% 8px 8px / 26% 26% 8px 8px; background:linear-gradient(180deg, #f7f0e0 0%, #ebe0cb 100%); position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end; align-items:center;">
+        <div style="position:absolute; left:50%; bottom:15%; width:68%; height:68px; transform:translateX(-50%); border:2px solid rgba(201,162,94,0.7); border-radius:50%; pointer-events:none; box-shadow:0 0 15px rgba(201,162,94,0.3);"></div>
+        <div id="home-art" style="position:absolute; inset:4% 0 10% 0; z-index:2; background-repeat:no-repeat; background-position:center center; background-size:contain; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.2));"></div>
+        <div style="position:relative; z-index:3; text-align:center; margin-bottom:12px;">
+          <div style="font-size:12px; color:#8c764e; letter-spacing:0.2em;">常胜将军</div>
+          <div style="font-size:20px; font-weight:bold; color:#17150f; letter-spacing:0.15em;">赵 云</div>
+          <div style="font-size:11px; color:#5a4232; margin-top:2px;">龙胆 · 附近友军攻速提升</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3 style="margin-top:0;">3. 图鉴 / 祈将揭晓卡展示</h3>
+      <div id="reveal-card" style="width:240px; height:460px; border:2px solid #3c3325; border-radius:8px; background:linear-gradient(180deg, #fcf9f0 0%, #eee5d3 100%); position:relative; overflow:hidden; box-shadow:0 6px 16px rgba(0,0,0,0.2);">
+        <div style="position:absolute; top:12px; right:12px; z-index:3; border:1px solid #b23a2f; color:#b23a2f; padding:2px 6px; font-size:12px; font-weight:bold; border-radius:3px;">三国 · 蜀汉</div>
+        <div id="reveal-art" style="position:absolute; inset:6% 2% 16% 2%; z-index:2; background-repeat:no-repeat; background-position:center center; background-size:contain; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.18));"></div>
+        <div style="position:absolute; bottom:12px; left:0; right:0; z-index:3; text-align:center;">
+          <div style="font-size:11px; color:#059669; font-weight:bold;">2000+面高精特效 · 水墨拖尾</div>
+          <div style="font-size:18px; font-weight:bold; color:#17150f; margin-top:3px;">常胜将军 · 赵云</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from '../lib/three.module.js';
+    import { getHero } from '../src/data/heroes.js';
+    import { createHeroModel } from '../src/models.js';
+
+    try {
+      const hero = getHero('zhaoyun');
+      const W = 384, H = 576;
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+      renderer.setSize(W, H, false);
+      renderer.setPixelRatio(1);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.setClearColor(0x000000, 0);
+
+      const scene = new THREE.Scene();
+      const hemi = new THREE.HemisphereLight(0xfff7e6, 0x7a7468, 2.3);
+      scene.add(hemi);
+      const dir = new THREE.DirectionalLight(0xfff2d6, 2.5);
+      dir.position.set(-2, 4, 5);
+      scene.add(dir);
+      const fill = new THREE.DirectionalLight(0x9ab0b0, 0.9);
+      fill.position.set(3, 2, -3);
+      scene.add(fill);
+
+      const cam = new THREE.PerspectiveCamera(28, W / H, 0.1, 100);
+      const model = createHeroModel(hero, 'player');
+
+      if (model.aura) model.group.remove(model.aura);
+      model.group.rotation.y = -0.28;
+
+      // 名将持握姿态：自然握持长枪中段偏下，枪尖与赤缨高耸齐肩并微倾，英武挺拔
+      if (model.weapon) {
+        model.weapon.position.y = -0.36;
+      }
+      if (model.weaponPivot) {
+        model.weaponPivot.rotation.z = -0.15;
+        model.weaponPivot.rotation.x = -0.10;
+        model.weaponPivot.position.x = 0.38 * (model.baseScale || 1.30);
+      }
+      model.group.updateMatrixWorld(true);
+
+      const totalBox = new THREE.Box3().setFromObject(model.group);
+      const center = new THREE.Vector3();
+      totalBox.getCenter(center);
+      const size = new THREE.Vector3();
+      totalBox.getSize(size);
+
+      const fovY = (28 / 2) * (Math.PI / 180);
+      const aspect = W / H;
+      const marginY = 1.08;
+      const marginX = 1.10;
+
+      const distY = (size.y / 2) / Math.tan(fovY) * marginY;
+      const distX = (size.x / 2) / (Math.tan(fovY) * aspect) * marginX;
+      const zDist = Math.max(distY, distX) + size.z / 2;
+
+      const targetY = center.y + 0.05;
+      cam.position.set(center.x, targetY, center.z + zDist);
+      cam.lookAt(center.x, targetY, center.z);
+      cam.updateProjectionMatrix();
+
+      scene.add(model.group);
+      renderer.clear();
+      renderer.render(scene, cam);
+
+      const data = renderer.domElement.toDataURL('image/png');
+      document.getElementById('thumb-img').src = data;
+      document.getElementById('home-art').style.backgroundImage = 'url(' + data + ')';
+      document.getElementById('reveal-art').style.backgroundImage = 'url(' + data + ')';
+      console.log('HERO_PREVIEW_RENDERED_V3');
+    } catch(err) {
+      console.error(err);
+    }
+  </script>
+</body>
+</html>
